@@ -1,0 +1,105 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mobipaid 1.0.0\n"
+"POT-Creation-Date: 2020-04-02 15:14+0700\n"
+"PO-Revision-Date: 2020-04-02 15:14+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/class-mobipaid.php:26 includes/class-mobipaid.php:73
+msgid "Mobipaid"
+msgstr "Mobipaid"
+
+#: includes/class-mobipaid.php:27
+msgid ""
+"Mobipaid redirects customers to Mobipaid to enter their payment information."
+msgstr "Mobipaidは顧客をMobipaidにリダイレクトして支払い情報を入力する。"
+
+#: includes/class-mobipaid.php:64
+msgid "Enable/Disable"
+msgstr "有効化/無効化"
+
+#: includes/class-mobipaid.php:65
+msgid "Enable Mobipaid"
+msgstr "Mobipaid を有効にする"
+
+#: includes/class-mobipaid.php:70
+msgid "Title"
+msgstr "タイトル"
+
+#: includes/class-mobipaid.php:72
+msgid "This is the title which the user sees during checkout."
+msgstr "これは、チェックアウト時にユーザーに表示されるタイトルです。"
+
+#: includes/class-mobipaid.php:77
+msgid "Description"
+msgstr "説明"
+
+#: includes/class-mobipaid.php:79
+msgid "This is the description which the user sees during checkout."
+msgstr "これは、チェックアウト時にユーザーに表示される説明です。"
+
+#: includes/class-mobipaid.php:84
+msgid "Access Key"
+msgstr "アクセスキー"
+
+#: includes/class-mobipaid.php:86
+msgid ""
+"* This is the access key, received from Mobipaid developer portal. "
+"( required )"
+msgstr "* Mobipaid開発者ポータルから受け取ったアクセスキーです ( 必須 )"
+
+#: includes/class-mobipaid.php:90
+msgid "Enable Logging"
+msgstr "ロギングの有効化"
+
+#: includes/class-mobipaid.php:92
+msgid "Enable transaction logging for mobipaid."
+msgstr "mobipaid のトランザクションログを有効にします。"
+
+#: includes/class-mobipaid.php:105
+msgid "Please enter an access key!"
+msgstr "アクセスキーを入力してください!"
+
+#: includes/class-mobipaid.php:209
+msgid "We are sorry, currency is not supported. Please contact us."
+msgstr "申し訳ありませんが、通貨はサポートされていません。 ご相談ください。"
+
+#: includes/class-mobipaid.php:212
+msgid "Error while Processing Request: please try again."
+msgstr "リクエストの処理中にエラーが発生しました:もう一度お試しください。"
+
+#: includes/class-mobipaid.php:291
+msgid "Mobipaid partial refund successfull."
+msgstr "Mobipaidの一部払い戻しが正常に完了しました。"
+
+#: includes/class-mobipaid.php:297 includes/class-mobipaid.php:330
+msgid "Refund Failed"
+msgstr "払い戻しに失敗しました"
+
+#: includes/class-mobipaid.php:325
+msgid "Mobipaid full refund successfull."
+msgstr "Mobipaidの全額払い戻しが正常に終了しました。"
+
+#: includes/class-mobipaid.php:356
+msgid ""
+"Mobipaid notes: You still have amount to be refunded, because Merchant use "
+"tax/tip when customer paid. Please contact the merchant to refund the tax/"
+"tip amount."
+msgstr ""
+"Mobipaidメモ：購入者が支払ったときにマーチャントが税金/チップを使用するた"
+"め、払い戻し額はまだあります。 税金/チップの金額を返金するには、出品者に連絡"
+"してください。"
+
+#: mobipaid.php:92
+msgid "Settings"
+msgstr "[設定]"

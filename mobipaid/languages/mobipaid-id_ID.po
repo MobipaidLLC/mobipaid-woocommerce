@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mobipaid 1.0.0\n"
+"POT-Creation-Date: 2020-04-02 15:07+0700\n"
+"PO-Revision-Date: 2020-04-02 15:11+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: id_ID\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/class-mobipaid.php:26 includes/class-mobipaid.php:73
+msgid "Mobipaid"
+msgstr "Mobipaid"
+
+#: includes/class-mobipaid.php:27
+msgid ""
+"Mobipaid redirects customers to Mobipaid to enter their payment information."
+msgstr ""
+"Mobipaid mengalihkan pelanggan ke Mobipaid untuk memasukkan informasi "
+"pembayaran mereka."
+
+#: includes/class-mobipaid.php:64
+msgid "Enable/Disable"
+msgstr "Aktifkan/Nonaktifkan"
+
+#: includes/class-mobipaid.php:65
+msgid "Enable Mobipaid"
+msgstr "Aktifkan Mobipaid"
+
+#: includes/class-mobipaid.php:70
+msgid "Title"
+msgstr "Judul"
+
+#: includes/class-mobipaid.php:72
+msgid "This is the title which the user sees during checkout."
+msgstr "Ini adalah judul yang pengguna lihat selama checkout."
+
+#: includes/class-mobipaid.php:77
+msgid "Description"
+msgstr "Deskripsi"
+
+#: includes/class-mobipaid.php:79
+msgid "This is the description which the user sees during checkout."
+msgstr "Ini adalah deskripsi yang pengguna lihat selama checkout."
+
+#: includes/class-mobipaid.php:84
+msgid "Access Key"
+msgstr "Kunci Akses"
+
+#: includes/class-mobipaid.php:86
+msgid ""
+"* This is the access key, received from Mobipaid developer portal. "
+"( required )"
+msgstr ""
+"* Ini adalah kunci akses, diterima dari portal pengembang Mobipaid. "
+"( diperlukan )"
+
+#: includes/class-mobipaid.php:90
+msgid "Enable Logging"
+msgstr "Aktifkan pencatatan log"
+
+#: includes/class-mobipaid.php:92
+msgid "Enable transaction logging for mobipaid."
+msgstr "Aktifkan pencatatan log untuk mobipaid."
+
+#: includes/class-mobipaid.php:105
+msgid "Please enter an access key!"
+msgstr "Silakan masukkan kunci akses!"
+
+#: includes/class-mobipaid.php:209
+msgid "We are sorry, currency is not supported. Please contact us."
+msgstr "Mohon maaf, mata uang tidak didukung. Silahkan hubungi kami."
+
+#: includes/class-mobipaid.php:212
+msgid "Error while Processing Request: please try again."
+msgstr "Gagal saat memproses permintaan: silakan coba lagi."
+
+#: includes/class-mobipaid.php:291
+msgid "Mobipaid partial refund successfull."
+msgstr "Mobipaid pengembalian sebagian sukses."
+
+#: includes/class-mobipaid.php:297 includes/class-mobipaid.php:330
+msgid "Refund Failed"
+msgstr "Pengembalian Dana Gagal"
+
+#: includes/class-mobipaid.php:325
+msgid "Mobipaid full refund successfull."
+msgstr "Mobipaid pengembalian semua dana sukses."
+
+#: includes/class-mobipaid.php:356
+msgid ""
+"Mobipaid notes: You still have amount to be refunded, because Merchant use "
+"tax/tip when customer paid. Please contact the merchant to refund the tax/"
+"tip amount."
+msgstr ""
+"Catatan Mobipaid: Anda masih memiliki dana yang masih bisa dikembalikan, "
+"karena Merchant menggunakan pajak/tip saat pelanggan membayar. Silakan "
+"hubungi merchant untuk mengembalikan jumlah pajak/tip."
+
+#: mobipaid.php:92
+msgid "Settings"
+msgstr "Pengaturan"

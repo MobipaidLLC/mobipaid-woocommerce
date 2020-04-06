@@ -1,0 +1,109 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mobipaid 1.0.0\n"
+"POT-Creation-Date: 2020-04-02 15:11+0700\n"
+"PO-Revision-Date: 2020-04-02 15:12+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: includes/class-mobipaid.php:26 includes/class-mobipaid.php:73
+msgid "Mobipaid"
+msgstr "Mobipaid"
+
+#: includes/class-mobipaid.php:27
+msgid ""
+"Mobipaid redirects customers to Mobipaid to enter their payment information."
+msgstr ""
+"Mobipaid reindirizza i clienti a Mobipaid per inserire le informazioni di "
+"pagamento."
+
+#: includes/class-mobipaid.php:64
+msgid "Enable/Disable"
+msgstr "Attiva/Disabilita"
+
+#: includes/class-mobipaid.php:65
+msgid "Enable Mobipaid"
+msgstr "Abilita Mobipaid"
+
+#: includes/class-mobipaid.php:70
+msgid "Title"
+msgstr "Titolo"
+
+#: includes/class-mobipaid.php:72
+msgid "This is the title which the user sees during checkout."
+msgstr "Questo è il titolo che l'utente vede durante il checkout."
+
+#: includes/class-mobipaid.php:77
+msgid "Description"
+msgstr "Descrizione"
+
+#: includes/class-mobipaid.php:79
+msgid "This is the description which the user sees during checkout."
+msgstr "Questa è la descrizione che l'utente vede durante il checkout."
+
+#: includes/class-mobipaid.php:84
+msgid "Access Key"
+msgstr "Chiave di accesso"
+
+#: includes/class-mobipaid.php:86
+msgid ""
+"* This is the access key, received from Mobipaid developer portal. "
+"( required )"
+msgstr ""
+"* Questa è la chiave di accesso, ricevuta dal portale degli sviluppatori "
+"Mobipaid. ( obbligatorio )"
+
+#: includes/class-mobipaid.php:90
+msgid "Enable Logging"
+msgstr "Abilita registrazione"
+
+#: includes/class-mobipaid.php:92
+msgid "Enable transaction logging for mobipaid."
+msgstr "Abilita la registrazione delle transazioni per mobipaid."
+
+#: includes/class-mobipaid.php:105
+msgid "Please enter an access key!"
+msgstr "Inserisci una chiave di accesso!"
+
+#: includes/class-mobipaid.php:209
+msgid "We are sorry, currency is not supported. Please contact us."
+msgstr "Siamo spiacenti, la valuta non è supportata. Contattateci."
+
+#: includes/class-mobipaid.php:212
+msgid "Error while Processing Request: please try again."
+msgstr "Errore durante l'elaborazione della richiesta: riprova."
+
+#: includes/class-mobipaid.php:291
+msgid "Mobipaid partial refund successfull."
+msgstr "Rimborso parziale Mobipaid con successo."
+
+#: includes/class-mobipaid.php:297 includes/class-mobipaid.php:330
+msgid "Refund Failed"
+msgstr "Rimborso non riuscito"
+
+#: includes/class-mobipaid.php:325
+msgid "Mobipaid full refund successfull."
+msgstr "Mobipaid rimborso completo con successo."
+
+#: includes/class-mobipaid.php:356
+msgid ""
+"Mobipaid notes: You still have amount to be refunded, because Merchant use "
+"tax/tip when customer paid. Please contact the merchant to refund the tax/"
+"tip amount."
+msgstr ""
+"Note Mobipaid: Hai ancora importo da rimborsare, perché il commerciante "
+"utilizza tasse/mancia quando il cliente ha pagato. Si prega di contattare "
+"il commerciante per rimborsare l’importo della tassa/mancia."
+
+#: mobipaid.php:92
+msgid "Settings"
+msgstr "Impostazioni"
