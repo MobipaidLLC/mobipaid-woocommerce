@@ -3,7 +3,7 @@
  * Plugin Name:          Mobipaid
  * Plugin URI:           https://github.com/MobipaidLLC/mobipaid-woocommerce
  * Description:          Receive payments using Mobipaid.
- * Version:              1.0.0
+ * Version:              1.0.1
  * Requires at least:    5.0
  * Tested up to:         5.3.2
  * WC requires at least: 3.9.0
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'MOBIPAID_PLUGIN_VERSION', '1.0.0' );
+define( 'MOBIPAID_PLUGIN_VERSION', '1.0.1' );
 
 register_activation_hook( __FILE__, 'mobipaid_activate_plugin' );
 register_uninstall_hook( __FILE__, 'mobipaid_uninstall_plugin' );
