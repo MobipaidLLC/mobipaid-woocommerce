@@ -5,7 +5,7 @@ Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, pay
 Requires at least: 5.0
 Tested up to: 5.3.2
 Requires PHP: 7.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -70,6 +70,11 @@ The manual installation method involves downloading our plugin and uploading it 
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 3. Settings the plugin through the 'Plugins' menu in WordPress.
 
+= Setup =
+
+After installed the plugin, you need to go to plugin settings and input an access key that received from Mobipaid developer portal.
+And please make sure Merchant has created POS Link with Reference number type Customer Input and sets avaiable currencies.
+
 == Frequently Asked Questions ==
 
 = Does this require an SSL certificate? =
@@ -97,4 +102,9 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 * Initial release
 
 = 1.0.1 - 2020-05-11 =
+* change the way of get payment status.
+
+= 1.0.2 - 2020-06-03 =
+* change logo size.
+* add readme for setup.
 * change the way of get payment status.

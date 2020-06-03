@@ -7,3 +7,8 @@
 
 = 1.0.1 - 2020-05-11 =
 * change the way of get payment status.
+
+= 1.0.2 - 2020-06-03 =
+* change logo size.
+* add readme for setup.
+* change the way of get payment status.
