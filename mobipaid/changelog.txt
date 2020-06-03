@@ -4,6 +4,3 @@
 * First Release
 * accept payments via Mobipaid.
 * support partial / full refund.
-
-= 1.0.1 - 2020-05-11 =
-* change the way of get payment status.

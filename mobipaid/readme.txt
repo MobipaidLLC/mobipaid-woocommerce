@@ -5,7 +5,7 @@ Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, pay
 Requires at least: 5.0
 Tested up to: 5.3.2
 Requires PHP: 7.0
-Stable tag: 1.0.1
+Stable tag: 1.0.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -95,6 +95,3 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 
 = 1.0.0 2020-04-06 =
 * Initial release
-
-= 1.0.1 - 2020-05-11 =
-* change the way of get payment status.

@@ -404,9 +404,8 @@ class Mobipaid extends WC_Payment_Gateway {
 
 		if ( ! empty( $token ) ) {
 			$this->log( 'get response from the gateway reponse url' );
-			$res_body = file_get_contents( 'php://input' );
-			$res_body = json_decode( $res_body, true );
-			$response = json_decode( wp_unslash( $res_body['response'] ), true );
+			$response = get_query_var( 'response' );
+			$response = json_decode( wp_unslash( $response ), true );
 			$this->log( 'response_page - response: ' . wp_json_encode( $response ) );
 
 			$transaction_id  = isset( $response['transaction_id'] ) ? $response['transaction_id'] : '';
