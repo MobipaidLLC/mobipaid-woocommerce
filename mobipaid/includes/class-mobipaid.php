@@ -404,21 +404,39 @@ class Mobipaid extends WC_Payment_Gateway {
 
 		if ( ! empty( $token ) ) {
 			$this->log( 'get response from the gateway reponse url' );
-			$res_body = file_get_contents( 'php://input' );
-			$res_body = json_decode( $res_body, true );
-			$response = json_decode( wp_unslash( $res_body['response'] ), true );
-			$this->log( 'response_page - response: ' . wp_json_encode( $response ) );
+			$response = get_query_var( 'response' );
+			$this->log( 'response_page - original response: ' . $response );
+			$response = json_decode( wp_unslash( $response ), true );
+			$this->log( 'response_page - formated response: ' . wp_json_encode( $response ) );
 
-			$transaction_id  = isset( $response['transaction_id'] ) ? $response['transaction_id'] : '';
-			$result          = isset( $response['result'] ) ? $response['result'] : '';
-			$payment_id      = isset( $response['payment_id'] ) ? $response['payment_id'] : '';
-			$currency        = isset( $response['currency'] ) ? $response['currency'] : '';
+			$payment_status = '';
+			$payment_id     = '';
+			$currency       = '';
+
+			if ( isset( $response['status'] ) ) {
+				$payment_status = $response['status'];
+			} elseif ( isset( $response['result'] ) ) {
+				$payment_status = $response['result'];
+			}
+
+			if ( isset( $response['payment_id'] ) ) {
+				$payment_id = $response['payment_id'];
+			} elseif ( isset( $response['response'] ) && isset( $response['response']['id'] ) ) {
+				$payment_id = $response['response']['id'];
+			}
+
+			if ( isset( $response['currency'] ) ) {
+				$currency = $response['currency'];
+			} elseif ( isset( $response['response'] ) && isset( $response['response']['currency'] ) ) {
+				$currency = $response['response']['currency'];
+			}
+
 			$generated_token = $this->generate_token( $order_id, $currency );
 			$order           = wc_get_order( $order_id );
 
 			if ( $order && 'mobipaid' === $order->get_payment_method() ) {
 				if ( $token === $generated_token ) {
-					if ( 'ACK' === $result ) {
+					if ( 'ACK' === $payment_status ) {
 						$this->log( 'response_page: update order status to processing' );
 						$order_status = 'processing';
 						$order_notes  = 'Mobipaid payment successfull:';
