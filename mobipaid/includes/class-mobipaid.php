@@ -409,20 +409,26 @@ class Mobipaid extends WC_Payment_Gateway {
 			$response = json_decode( wp_unslash( $response ), true );
 			$this->log( 'response_page - formated response: ' . wp_json_encode( $response ) );
 
-			$result         = isset( $response['result'] ) ? $response['result'] : null;
-			$status         = isset( $response['status'] ) ? $response['status'] : null;
 			$payment_status = '';
 			$payment_id     = '';
 			$currency       = '';
 
-			if ( $result ) {
-				$payment_status = $result;
-				$payment_id     = isset( $response['payment_id'] ) ? $response['payment_id'] : '';
-				$currency       = isset( $response['currency'] ) ? $response['currency'] : '';
-			} elseif ( $status ) {
-				$payment_status = $status;
-				$payment_id     = isset( $response['response']['id'] ) ? $response['response']['id'] : '';
-				$currency       = isset( $response['response']['currency'] ) ? $response['response']['currency'] : '';
+			if ( isset( $response['status'] ) ) {
+				$payment_status = $response['status'];
+			} elseif ( isset( $response['result'] ) ) {
+				$payment_status = $response['result'];
+			}
+
+			if ( isset( $response['payment_id'] ) ) {
+				$payment_id = $response['payment_id'];
+			} elseif ( isset( $response['response'] ) && isset( $response['response']['id'] ) ) {
+				$payment_id = $response['response']['id'];
+			}
+
+			if ( isset( $response['currency'] ) ) {
+				$currency = $response['currency'];
+			} elseif ( isset( $response['response'] ) && isset( $response['response']['currency'] ) ) {
+				$currency = $response['response']['currency'];
 			}
 
 			$generated_token = $this->generate_token( $order_id, $currency );
