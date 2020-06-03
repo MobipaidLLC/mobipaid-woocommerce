@@ -408,16 +408,28 @@ class Mobipaid extends WC_Payment_Gateway {
 			$response = json_decode( wp_unslash( $response ), true );
 			$this->log( 'response_page - response: ' . wp_json_encode( $response ) );
 
-			$transaction_id  = isset( $response['transaction_id'] ) ? $response['transaction_id'] : '';
-			$result          = isset( $response['result'] ) ? $response['result'] : '';
-			$payment_id      = isset( $response['payment_id'] ) ? $response['payment_id'] : '';
-			$currency        = isset( $response['currency'] ) ? $response['currency'] : '';
+			$result         = isset( $response['result'] ) ? $response['result'] : null;
+			$status         = isset( $response['status'] ) ? $response['status'] : null;
+			$payment_status = '';
+			$payment_id     = '';
+			$currency       = '';
+
+			if ( $result ) {
+				$payment_status = $result;
+				$payment_id     = isset( $response['payment_id'] ) ? $response['payment_id'] : '';
+				$currency       = isset( $response['currency'] ) ? $response['currency'] : '';
+			} elseif ( $status ) {
+				$payment_status = $status;
+				$payment_id     = isset( $response['response']['id'] ) ? $response['response']['id'] : '';
+				$currency       = isset( $response['response']['currency'] ) ? $response['response']['currency'] : '';
+			}
+
 			$generated_token = $this->generate_token( $order_id, $currency );
 			$order           = wc_get_order( $order_id );
 
 			if ( $order && 'mobipaid' === $order->get_payment_method() ) {
 				if ( $token === $generated_token ) {
-					if ( 'ACK' === $result ) {
+					if ( 'ACK' === $payment_status ) {
 						$this->log( 'response_page: update order status to processing' );
 						$order_status = 'processing';
 						$order_notes  = 'Mobipaid payment successfull:';
