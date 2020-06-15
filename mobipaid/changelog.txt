@@ -12,3 +12,6 @@
 * change logo size.
 * add readme for setup.
 * change the way of get payment status.
+
+= 1.0.3 - 2020-06-15 =
+* add sku and unit price to payment page.

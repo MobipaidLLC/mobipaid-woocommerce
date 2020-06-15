@@ -225,9 +225,18 @@ class Mobipaid extends WC_Payment_Gateway {
 		$order      = wc_get_order( $order_id );
 
 		foreach ( $order->get_items() as $item_id => $item ) {
+			$product = $item->get_product();
+			$sku = $product->get_sku();
+			if ( !$sku ) {
+				$sku = '-';
+			}
+			$item_total  = isset( $item['recurring_line_total'] ) ? $item['recurring_line_total'] : $order->get_item_total( $item );
+
 			$cart_items[] = array(
-				'name' => $item->get_name(),
-				'qty'  => $item->get_quantity(),
+				'sku'		 => $sku,
+				'name' 		 => $item->get_name(),
+				'qty'  		 => $item->get_quantity(),
+				'unit_price' => $item_total
 			);
 		}
 
