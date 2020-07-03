@@ -109,5 +109,5 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 * add readme for setup.
 * change the way of get payment status.
 
-= 1.0.3 - 2020-06-15 =
+= 1.0.3 - 2020-07-03 =
 * add sku and unit price to payment page.
