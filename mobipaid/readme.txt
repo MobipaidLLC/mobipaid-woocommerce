@@ -3,9 +3,9 @@
 Contributors: mobipaid
 Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, payment gateway
 Requires at least: 5.0
-Tested up to: 5.3.2
+Tested up to: 5.6
 Requires PHP: 7.0
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -111,3 +111,6 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 
 = 1.0.3 - 2020-07-03 =
 * add sku and unit price to payment page.
+
+= 1.0.4 - 2020-30-12 =
+* support compatibility wordpress 5.6 and woocommerce 4.8.0.
