@@ -29,6 +29,7 @@ Mobipaid is the best payment solution available for merchants who need payment f
 
 * Accept payments via Mobipaid.
 * Partial / Full refund.
+* Subscription payments.
  
 == Localization ==
 
@@ -112,5 +113,9 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 = 1.0.3 - 2020-07-03 =
 * add sku and unit price to payment page.
 
-= 1.0.4 - 2020-30-12 =
+= 1.0.4 - 2020-12-30 =
 * support compatibility wordpress 5.6 and woocommerce 4.8.0.
+
+= 1.0.5 - 2021-06-24 =
+* support compatibility wordpress 5.7.2 and woocommerce 5.4.1.
+* support with woocommerce subscription plugin
