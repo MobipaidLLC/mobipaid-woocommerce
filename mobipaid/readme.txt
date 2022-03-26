@@ -5,7 +5,7 @@ Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, pay
 Requires at least: 5.0
 Tested up to: 5.6
 Requires PHP: 7.0
-Stable tag: 1.0.4
+Stable tag: 1.0.6
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -119,3 +119,6 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 = 1.0.5 - 2021-06-24 =
 * support compatibility wordpress 5.7.2 and woocommerce 5.4.1.
 * support with woocommerce subscription plugin
+
+= 1.0.6 - 2022-01-20 =
+* fix order status for virtual product and download product

@@ -586,7 +586,20 @@ class Mobipaid extends WC_Payment_Gateway
     if ($token === $generated_token) {
      if ('ACK' === $payment_status) {
       $this->log('response_page: update order status to processing');
-      $order_status = 'processing';
+      $order_status = 'completed';
+      
+      foreach ($order->get_items() as $order_item){
+
+        $item = wc_get_product($order_item->get_product_id());
+        
+        if (!$item->is_virtual()) {
+            $order_status = 'processing';;
+            
+        }
+      }
+
+      $this->log('order_status: '.$order_status);
+
       $order_notes  = 'Mobipaid payment successfull:';
       update_post_meta($order->get_id(), '_mobipaid_payment_id', $payment_id);
       update_post_meta($order->get_id(), '_mobipaid_payment_result', 'succes');
