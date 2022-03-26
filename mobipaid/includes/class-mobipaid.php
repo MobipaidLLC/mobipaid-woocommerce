@@ -588,15 +588,13 @@ class Mobipaid extends WC_Payment_Gateway
       $this->log('response_page: update order status to processing');
       $order_status = 'completed';
       
-      foreach ($order->get_items() as $order_item){
+      if(count((array)$order->get_items()) > 1 ) {
+        if($this->is_product_contain_physical($order)){
 
-        $item = wc_get_product($order_item->get_product_id());
-        
-        if (!$item->is_virtual()) {
             $order_status = 'processing';;
-            
         }
       }
+      
 
       $this->log('order_status: '.$order_status);
 
@@ -619,6 +617,25 @@ class Mobipaid extends WC_Payment_Gateway
   } else {
    $this->log('response_page: go to thank you page');
   }
+ }
+
+
+ public function is_gift_card( $product ) {
+    return str_contains($product->get_type(),'gift') && str_contains($product->get_type(),'card');
+ }
+
+ public function is_product_contain_physical( $order ) {
+    
+    foreach ($order->get_items() as $order_item){
+
+        $item = wc_get_product($order_item->get_product_id());
+        
+        if (!$item->is_virtual() && !$this->is_gift_card($item)) {
+            return true;
+        } 
+      }
+
+      return false;
  }
 
  /**

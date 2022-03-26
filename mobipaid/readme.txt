@@ -3,7 +3,7 @@
 Contributors: mobipaid
 Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, payment gateway
 Requires at least: 5.0
-Tested up to: 5.6
+Tested up to: 5.9
 Requires PHP: 7.0
 Stable tag: 1.0.6
 License: GPLv3
@@ -122,3 +122,6 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 
 = 1.0.6 - 2022-01-20 =
 * fix order status for virtual product and download product
+
+= 1.0.7 - 2022-03-26 =
+* fix order status for gift card product
