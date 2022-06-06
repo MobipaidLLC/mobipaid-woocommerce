@@ -5,9 +5,9 @@
  * Description:          Receive payments using Mobipaid.
  * Version:              1.0.7
  * Requires at least:    5.0
- * Tested up to:         5.6
+ * Tested up to:         6.0
  * WC requires at least: 3.9.0
- * WC tested up to:      4.8.0
+ * WC tested up to:      6.5.1
  * Requires PHP:         7.0
  * Author:               Mobipaid
  * Author URI:           https://mobipaid.com

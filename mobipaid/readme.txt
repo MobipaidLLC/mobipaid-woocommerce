@@ -3,7 +3,7 @@
 Contributors: mobipaid
 Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, payment gateway
 Requires at least: 5.0
-Tested up to: 5.9
+Tested up to: 6.0
 Requires PHP: 7.0
 Stable tag: 1.0.6
 License: GPLv3
