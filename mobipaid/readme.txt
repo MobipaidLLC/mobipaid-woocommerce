@@ -125,3 +125,8 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 
 = 1.0.7 - 2022-03-26 =
 * fix order status for gift card product
+
+= 1.0.8 - 2022-11-05 =
+* add sandbox development mode
+* add auto create default pos link if not available
+* support compatibility wordpress 6.1 and woocommerce 7.0.1.
