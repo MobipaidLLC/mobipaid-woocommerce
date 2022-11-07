@@ -99,6 +99,42 @@ class Mobipaid_API
   return self::send_request($url, $body, 'POST');
  }
 
+  /**
+  * Get pos link detail with the API.
+  *
+  * @param string $payment_id Payment ID.
+  *
+  * @return array
+  */
+  public static function get_pos_link()
+  {
+   $url = self::get_api_url() . '/pos';
+   return self::send_request($url);
+  }
+
+  /**
+  * Create default pos link
+  *
+  * @param array $currency Currency.
+  *
+  * @return array
+  */
+  public static function create_default_pos_link(){
+    $body = array();
+
+    $body['currency'] = ['ZAR', 'USD', 'EUR'];
+    $body['auto_generate_ref_number'] = 0;
+    $body['ref_number_suffix'] = 1;
+    $body['ref_number_prefix'] = 'MP';
+    $body['tip_enabled'] = false;
+    $body['moto_enabled'] = false;
+    $body['share_button_enabled'] = false;
+
+    $url = self::get_api_url() . '/pos';
+
+    return self::send_request($url, $body, 'POST');
+  }
+
  /**
   * Get payment detail with the API.
   *

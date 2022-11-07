@@ -81,7 +81,7 @@ class Mobipaid extends WC_Payment_Gateway
   $this->payment_type   = 'DB';
   $this->access_key     = $this->get_option('access_key');
   $this->enable_logging = 'yes' === $this->get_option('enable_logging');
-  $this->is_test_mode   = 'mp_live' !== substr($this->access_key, 0, 7);
+  $this->is_test_mode   = 'yes' === $this->get_option('sandbox');
   $this->init_api();
  }
 
@@ -96,6 +96,12 @@ class Mobipaid extends WC_Payment_Gateway
    'enabled'        => array(
     'title'   => __('Enable/Disable', 'mobipaid'),
     'label'   => __('Enable Mobipaid', 'mobipaid'),
+    'type'    => 'checkbox',
+    'default' => 'no',
+   ),
+   'sandbox'        => array(
+    'title'   => __('Sandbox', 'mobipaid'),
+    'label'   => __('Enable Development Mode', 'mobipaid'),
     'type'    => 'checkbox',
     'default' => 'no',
    ),
@@ -116,7 +122,7 @@ class Mobipaid extends WC_Payment_Gateway
    'access_key'     => array(
     'title'       => __('Access Key', 'mobipaid'),
     'type'        => 'password',
-    'description' => __('* This is the access key, received from Mobipaid developer portal. ( required )', 'mobipaid'),
+    'description' => __('* This is the access key, received from Mobipaid developer portal. ( required )<br><br>* Access key for development mode have the prefix mp_test_<br>* Access key for production mode have the prefix mp_live_', 'mobipaid'),
     'default'     => '',
    ),
    'enable_logging' => array(
@@ -135,8 +141,47 @@ class Mobipaid extends WC_Payment_Gateway
  {
   $post_data  = $this->get_post_data();
   $access_key = $this->get_field_value('access_key', $this->form_fields, $post_data);
+  $is_test_mode = !empty($this->get_field_value('sandbox', $this->form_fields, $post_data));
+  
   if (empty($access_key)) {
    WC_Admin_Settings::add_error(__('Please enter an access key!', 'mobipaid'));
+  }
+
+  $this->validate_pos_link($access_key, $is_test_mode);
+ }
+
+ /**
+  * Check if pos link is already created
+  * if not exist, create new default pos link
+  */
+ public function validate_pos_link($access_key, $is_test_mode){
+
+  Mobipaid_API::$access_key   = $access_key;
+  Mobipaid_API::$is_test_mode = $is_test_mode;
+
+  $this->log('Mobipaid - access_key: ' . Mobipaid_API::$access_key);
+  $this->log('Mobipaid - is_test_mode: ' . Mobipaid_API::$is_test_mode);
+
+  $check = Mobipaid_API::get_pos_link();
+  $this->log('get_pos_link - results: ' . wp_json_encode($check));
+
+  if (200 !== $check['response']['code']) {
+
+    $result = Mobipaid_API::create_default_pos_link();
+    $this->log('create_default_pos_link - result: ' . wp_json_encode($result));
+
+    $response = $result['response']['code'];
+    
+    if(!isset($result['body']['message'])){
+      $error_message = 'Failed when saving changes. Please contact admin or developer';
+    }else{
+      $error_message = 'Failed when saving changes : '.$result['body']['message'];
+    }
+   
+    if($response !== 200){
+      WC_Admin_Settings::add_error(__($error_message, 'mobipaid'));
+    }
+
   }
  }
 
@@ -586,7 +631,18 @@ class Mobipaid extends WC_Payment_Gateway
     if ($token === $generated_token) {
      if ('ACK' === $payment_status) {
       $this->log('response_page: update order status to processing');
-      $order_status = 'processing';
+      $order_status = 'completed';
+      
+      if(count((array)$order->get_items()) > 1 ) {
+        if($this->is_product_contain_physical($order)){
+
+            $order_status = 'processing';;
+        }
+      }
+      
+
+      $this->log('order_status: '.$order_status);
+
       $order_notes  = 'Mobipaid payment successfull:';
       update_post_meta($order->get_id(), '_mobipaid_payment_id', $payment_id);
       update_post_meta($order->get_id(), '_mobipaid_payment_result', 'succes');
@@ -606,6 +662,25 @@ class Mobipaid extends WC_Payment_Gateway
   } else {
    $this->log('response_page: go to thank you page');
   }
+ }
+
+
+ public function is_gift_card( $product ) {
+    return str_contains($product->get_type(),'gift') && str_contains($product->get_type(),'card');
+ }
+
+ public function is_product_contain_physical( $order ) {
+    
+    foreach ($order->get_items() as $order_item){
+
+        $item = wc_get_product($order_item->get_product_id());
+        
+        if (!$item->is_virtual() && !$this->is_gift_card($item)) {
+            return true;
+        } 
+      }
+
+      return false;
  }
 
  /**
