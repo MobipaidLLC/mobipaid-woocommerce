@@ -33,3 +33,6 @@
 * add sandbox development mode
 * add auto create default pos link if not available
 * support compatibility wordpress 6.1 and woocommerce 7.0.1.
+
+= 1.0.9 - 2023-09-02 =
+* support compatibility wordpress 6.3.1 and woocommerce 8.0.3.
