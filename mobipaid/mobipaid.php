@@ -3,11 +3,11 @@
  * Plugin Name:          Mobipaid
  * Plugin URI:           https://github.com/MobipaidLLC/mobipaid-woocommerce
  * Description:          Receive payments using Mobipaid.
- * Version:              1.0.9
+ * Version:              1.1.0
  * Requires at least:    5.0
- * Tested up to:         6.1
+ * Tested up to:         6.6.2
  * WC requires at least: 3.9.0
- * WC tested up to:      6.5.1
+ * WC tested up to:      9.2.3
  * Requires PHP:         7.0
  * Author:               Mobipaid
  * Author URI:           https://mobipaid.com
@@ -23,10 +23,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-define( 'MOBIPAID_PLUGIN_VERSION', '1.0.9' );
+define( 'MOBIPAID_PLUGIN_VERSION', '1.1.0' );
 
 register_activation_hook( __FILE__, 'mobipaid_activate_plugin' );
 register_uninstall_hook( __FILE__, 'mobipaid_uninstall_plugin' );
+
+// Declare compatibility with custom_order_tables and cart_checkout_blocks for WooCommerce.
+add_action(
+	'before_woocommerce_init',
+	function () {
+		if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+				'custom_order_tables', 
+				__FILE__, 
+				true
+			);
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+				'cart_checkout_blocks',
+				__FILE__,
+				true
+			);
+		}
+	}
+);
 
 /**
  * Process when activate plugin.
@@ -125,4 +144,24 @@ function handleResponseUrl()
 	$mobipaid =  new Mobipaid();
 
     return $mobipaid->response_page();
+}
+
+add_action( 'woocommerce_blocks_loaded', 'mobipaid_gateway_block_support' );
+function mobipaid_gateway_block_support() {
+
+	if( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+		return;
+	}
+
+	// here we're including our "gateway block support class"
+	require_once __DIR__ . '/includes/class-mobipaid-blocks-support.php';
+
+	// registering the PHP class we have just included
+	add_action(
+		'woocommerce_blocks_payment_method_type_registration',
+		function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+			$payment_method_registry->register( new Mobipaid_Blocks_Support );
+		}
+	);
+
 }

@@ -3,9 +3,9 @@
 Contributors: mobipaid
 Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, payment gateway
 Requires at least: 5.0
-Tested up to: 6.1
+Tested up to: 6.6.2
 Requires PHP: 7.0
-Stable tag: 1.0.9
+Stable tag: 1.1.0
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -133,3 +133,8 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 
 = 1.0.9 - 2023-09-02 =
 * support compatibility wordpress 6.3.1 and woocommerce 8.0.3.
+
+= 1.1.0 - 2024-09-08 =
+* support HPOS
+* support woocommerce checkout block
+* support compatibility wordpress 6.6.2 and woocommerce 9.2.3

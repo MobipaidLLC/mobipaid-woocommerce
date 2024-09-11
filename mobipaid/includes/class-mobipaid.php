@@ -426,8 +426,8 @@ class Mobipaid extends WC_Payment_Gateway
   $secret_key     = wc_rand_hash();
 
   // * save transaction_id and secret_key first before call get_payment_url function.
-  update_post_meta($order->get_id(), '_mobipaid_transaction_id', $transaction_id);
-  update_post_meta($order->get_id(), '_mobipaid_secret_key', $secret_key);
+  $order->update_meta_data( '_mobipaid_transaction_id', $transaction_id );
+  $order->update_meta_data( '_mobipaid_secret_key', $secret_key );
 
   $payment_url = $this->get_payment_url($order_id, $transaction_id);
 
@@ -452,7 +452,7 @@ class Mobipaid extends WC_Payment_Gateway
  {
   $order = wc_get_order($order_id);
   if ($order && 'mobipaid' === $order->get_payment_method()) {
-   $payment_id = get_post_meta($order->get_id(), '_mobipaid_payment_id', true);
+   $payment_id = $order->get_meta( '_mobipaid_payment_id', true );
    $body       = array(
     'email'  => $order->get_billing_email(),
     'amount' => (float) $amount,
@@ -486,7 +486,7 @@ class Mobipaid extends WC_Payment_Gateway
 
    if (('processing' === $status_from || 'completed' === $status_from) && 'refunded' === $status_to) {
     $amount     = (float) $this->get_order_prop($order, 'order_total');
-    $payment_id = get_post_meta($order->get_id(), '_mobipaid_payment_id', true);
+    $payment_id = $order->get_meta( '_mobipaid_payment_id', true );
     $body       = array(
      'email'  => $order->get_billing_email(),
      'amount' => $amount,
@@ -523,7 +523,7 @@ class Mobipaid extends WC_Payment_Gateway
   if ($order && 'mobipaid' === $order->get_payment_method()) {
    if (('processing' === $status_from || 'completed' === $status_from) && 'refunded' === $status_to) {
     $order_amount = (float) $this->get_order_prop($order, 'order_total');
-    $payment_id   = get_post_meta($order->get_id(), '_mobipaid_payment_id', true);
+    $payment_id   = $order->get_meta( '_mobipaid_payment_id', true );
     $results      = Mobipaid_API::get_payment($payment_id);
     $this->log('add_full_refund_notes - get_payment results: ' . wp_json_encode($results));
     if (200 === $results['response']['code']) {
@@ -563,8 +563,9 @@ class Mobipaid extends WC_Payment_Gateway
   */
  protected function generate_token($order_id, $currency)
  {
-  $transaction_id = get_post_meta($order_id, '_mobipaid_transaction_id', true);
-  $secret_key     = get_post_meta($order_id, '_mobipaid_secret_key', true);
+  $order          = wc_get_order($order_id);
+  $transaction_id = $order->get_meta( '_mobipaid_transaction_id', true );
+  $secret_key     = $order->get_meta( '_mobipaid_secret_key', true );
 
   return md5((string) $order_id . $currency . $transaction_id . $secret_key);
  }
@@ -644,14 +645,14 @@ class Mobipaid extends WC_Payment_Gateway
       $this->log('order_status: '.$order_status);
 
       $order_notes  = 'Mobipaid payment successfull:';
-      update_post_meta($order->get_id(), '_mobipaid_payment_id', $payment_id);
-      update_post_meta($order->get_id(), '_mobipaid_payment_result', 'succes');
+      $order->update_meta_data( '_mobipaid_payment_id', $payment_id );
+      $order->update_meta_data( '_mobipaid_payment_result', 'succes' );
       $order->update_status($order_status, $order_notes);
      } else {
       $this->log('response_page: update order status to failed');
       $order_status = 'failed';
       $order_notes  = 'Mobipaid payment failed:';
-      update_post_meta($order->get_id(), '_mobipaid_payment_result', 'failed');
+      $order->update_meta_data( '_mobipaid_payment_result', 'failed' );
       $order->update_status($order_status, $order_notes);
      }
      die('OK');
