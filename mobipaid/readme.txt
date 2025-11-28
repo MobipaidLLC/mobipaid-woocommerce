@@ -1,11 +1,11 @@
 === Mobipaid ===
 
 Contributors: mobipaid
-Tags: credit card, mobipaid, google pay, apple pay, nedbank, payment method, payment gateway
+Tags: credit card, mobipaid, google pay, apple pay, nedbank
 Requires at least: 5.0
-Tested up to: 6.6.2
+Tested up to: 6.8.0
 Requires PHP: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -24,13 +24,13 @@ Payments over multiple channels
 Mobipaid is a single card-not-present payment platform that allows you to accept payments in a variety of ways: SEPA, Paypal, Credit/Debit Card, Nedbank EFT, google pay, apple pay and more. Add Mobipaid to your shopping cart for easy and secure payments during checkout, or use your Mobipaid portal to deliver payment requests to your customers using text messaging (SMS), email, social media, and QR codes.
 
 Mobipaid is the best payment solution available for merchants who need payment flexibility, or if your business has grown beyond just eCommerce and the service you offer requires you to take payments anywhere, anytime.
- 
+
 == Features ==
 
 * Accept payments via Mobipaid.
 * Partial / Full refund.
 * Subscription payments.
- 
+
 == Localization ==
 
 * English (default) - always included.
@@ -138,3 +138,7 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 * support HPOS
 * support woocommerce checkout block
 * support compatibility wordpress 6.6.2 and woocommerce 9.2.3
+
+= 1.1.1 - 2025-05-28 =
+* refactor response handling logic to support api v2
+* support compatibility wordpress 6.8.0 and woocommerce 9.8.0
