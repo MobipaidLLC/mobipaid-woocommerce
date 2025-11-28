@@ -90,11 +90,11 @@ class Mobipaid extends WC_Payment_Gateway
  public function __construct()
  {
   $this->id = 'mobipaid';
-  // title for backend.
+  // Title for backend.
   $this->method_title       = __('Mobipaid', 'mobipaid');
   $this->method_description = __('Mobipaid redirects customers to Mobipaid to enter their payment information.', 'mobipaid');
-  // title for frontend.
-  $this->icon     = WP_PLUGIN_URL . '/' . plugin_basename(dirname(dirname(__FILE__))) . '/assets/img/mp-logo.png';
+  // Title and icon for frontend.
+  $this->icon     = plugins_url('assets/img/mp-logo.png', dirname(__FILE__));
   $this->supports = array(
    'subscriptions',
    'subscription_cancellation',
