@@ -4,11 +4,11 @@
  * Plugin Name:          Mobipaid
  * Plugin URI:           https://github.com/MobipaidLLC/mobipaid-woocommerce
  * Description:          Receive payments using Mobipaid.
- * Version:              1.1.1
+ * Version:              1.1.2
  * Requires at least:    5.0
- * Tested up to:         6.8.0
+ * Tested up to:         6.8.3
  * WC requires at least: 3.9.0
- * WC tested up to:      9.8.0
+ * WC tested up to:      10.3.5
  * Requires PHP:         7.0
  * Author:               Mobipaid
  * Author URI:           https://mobipaid.com
@@ -24,7 +24,7 @@ if (! defined('ABSPATH')) {
  exit; // Exit if accessed directly.
 }
 
-define('MOBIPAID_PLUGIN_VERSION', '1.1.1');
+define('MOBIPAID_PLUGIN_VERSION', '1.1.2');
 
 register_activation_hook(__FILE__, 'mobipaid_activate_plugin');
 register_uninstall_hook(__FILE__, 'mobipaid_uninstall_plugin');
@@ -134,42 +134,69 @@ function mobipaid_add_query_vars_filter($vars)
 }
 add_filter('query_vars', 'mobipaid_add_query_vars_filter');
 
-add_action('rest_api_init', 'addResponseHandlerApi');
+add_action('rest_api_init', 'mobipaid_register_rest_routes');
 
-function addResponseHandlerApi()
+/**
+ * Register REST API routes for Mobipaid.
+ */
+function mobipaid_register_rest_routes()
 {
- // use hook to receive response url.
- register_rest_route('woocommerce_mobipaid_api', 'response_url', [
-  'methods'  => 'POST',
-  'callback' => 'handleResponseUrl',
-  'permission_callback' => '__return_true'
- ]);
+ register_rest_route(
+  'woocommerce_mobipaid_api',
+  'response_url',
+  array(
+   'methods'             => 'POST',
+   'callback'            => 'mobipaid_handle_response_url',
+   'permission_callback' => 'mobipaid_response_permission_callback',
+  )
+ );
 }
 
-function handleResponseUrl($request)
+/**
+ * Permission callback for response URL endpoint.
+ *
+ * @return bool Always returns true as this endpoint receives webhooks from Mobipaid.
+ */
+function mobipaid_response_permission_callback()
+{
+ // This endpoint receives webhooks from Mobipaid gateway.
+ // Authentication is handled via token validation in the response_page method.
+ return true;
+}
+
+/**
+ * Handle response URL callback from Mobipaid.
+ *
+ * @param WP_REST_Request $request Request object.
+ * @return mixed Response from Mobipaid handler.
+ */
+function mobipaid_handle_response_url($request)
 {
  require_once 'includes/class-mobipaid.php';
- $mobipaid =  new Mobipaid();
+ $mobipaid = new Mobipaid();
 
  return $mobipaid->response_page($request);
 }
 
 add_action('woocommerce_blocks_loaded', 'mobipaid_gateway_block_support');
+
+/**
+ * Register Mobipaid payment gateway with WooCommerce Blocks.
+ */
 function mobipaid_gateway_block_support()
 {
-
  if (! class_exists('Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType')) {
   return;
  }
 
- // here we're including our "gateway block support class"
+ // Include gateway block support class.
  require_once __DIR__ . '/includes/class-mobipaid-blocks-support.php';
 
- // registering the PHP class we have just included
+ // Register the payment method with WooCommerce Blocks.
  add_action(
   'woocommerce_blocks_payment_method_type_registration',
   function (Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
-   $payment_method_registry->register(new Mobipaid_Blocks_Support);
+   $payment_method_registry->register(new Mobipaid_Blocks_Support());
   }
  );
 }

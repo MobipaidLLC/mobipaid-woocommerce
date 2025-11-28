@@ -2,14 +2,19 @@
 /**
  * Mobipaid API Class
  *
+ * Handles API communication with Mobipaid payment gateway.
+ *
  * @package Mobipaid
+ * @since   1.0.0
  */
 
 if (!defined('ABSPATH')) {
- exit;
+ exit; // Exit if accessed directly.
 }
 
 /**
+ * Mobipaid API Class
+ *
  * Handles POS Link, Refunds and other API requests.
  *
  * @since 1.0.0
@@ -25,30 +30,32 @@ class Mobipaid_API
  public static $access_key;
 
  /**
-  * Is use test server or not
+  * Test mode flag
   *
   * @var bool
   */
  public static $is_test_mode = false;
 
  /**
-  * API live url
+  * API live URL
   *
   * @var string
   */
  public static $api_live_url = 'https://live.mobipaid.io/v2';
 
  /**
-  * API test url
+  * API test URL
   *
   * @var string
   */
  public static $api_test_url = 'https://test.mobipaid.io/v2';
 
  /**
-  * Get API url
+  * Get API URL based on test mode setting
   *
-  * @return string
+  * @since 1.0.0
+  *
+  * @return string API URL
   */
  public static function get_api_url()
  {
@@ -59,13 +66,15 @@ class Mobipaid_API
  }
 
  /**
-  * Send request to the API
+  * Send request to the Mobipaid API
   *
-  * @param string $url Url.
-  * @param array  $body Body.
-  * @param string $method Method.
+  * @since 1.0.0
   *
-  * @return array
+  * @param string $url    API endpoint URL.
+  * @param mixed  $body   Request body.
+  * @param string $method HTTP method (GET, POST, PUT, DELETE).
+  *
+  * @return array API response
   */
  public static function send_request($url, $body = '', $method = 'GET')
  {
