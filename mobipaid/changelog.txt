@@ -45,3 +45,13 @@
 = 1.1.1 - 2025-05-28 =
 * refactor response handling logic to support api v2
 * support compatibility wordpress 6.8.0 and woocommerce 9.8.0
+
+= 1.1.2 - 2025-11-28 =
+* update compatibility with wordpress 6.8.3 and woocommerce 10.3.5
+* improve code quality and best practices
+* enhance security and compatibility declarations
+
+= 1.1.3 - 2026-06-17 =
+* update compatibility with wordpress 7.0
+* remove outdated passing variables by reference for best practice
+* clean up code artifacts for Mobipaid
