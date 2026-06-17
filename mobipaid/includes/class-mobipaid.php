@@ -116,8 +116,8 @@ class Mobipaid extends WC_Payment_Gateway
   // use hook to add notes when payment amount greater than order amount.
   add_action('woocommerce_order_status_changed', array($this, 'add_full_refund_notes'), 10, 3);
   // use hook to add button for stop recurring
-  add_action('woocommerce_admin_order_data_after_order_details', array(&$this, 'stop_recurring_backend'));
-  add_action('woocommerce_view_order', array(&$this, 'stop_recurring_frontend'));
+  add_action('woocommerce_admin_order_data_after_order_details', array($this, 'stop_recurring_backend'));
+  add_action('woocommerce_view_order', array($this, 'stop_recurring_frontend'));
 
   $this->title          = $this->get_option('title');
   $this->description    = $this->get_option('description');

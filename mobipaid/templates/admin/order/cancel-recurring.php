@@ -1,11 +1,11 @@
 <?php
 /**
- * Skrill Payments Update Order
+ * Mobipaid Payments Update Order
  *
  * The file is for displaying button update order at order detail (admin)
- * Copyright (c) Skrill
+ * Copyright (c) Mobipaid
  *
- * @package Skrill/Templates
+ * @package Mobipaid/Templates
  * @located at  /template/admin/order
  */
 
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 ?>
 
 <style>
-    .skrill-warning {
+    .mobipaid-warning {
         box-sizing: border-box;
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
@@ -26,7 +26,7 @@ if (!defined('ABSPATH')) {
 </style>
 
 <?php if ($is_show_warning_message) {?>
-    <p class="form-field form-field-wide skrill-warning" style="padding: 10px !important;" id="cancel-recurring-message">
+    <p class="form-field form-field-wide mobipaid-warning" style="padding: 10px !important;" id="cancel-recurring-message">
     <?php echo esc_html($warning_message); ?>
     </p>
 <?php }?>
@@ -35,7 +35,7 @@ if (!defined('ABSPATH')) {
     <p class="form-field form-field-wide" style="text-align:right" id="cancel-recurring-button">
         <label for="order_status">&nbsp;</label>
         <a href="<?php echo esc_html($update_order_url); ?>" class="button save_order button-primary" >
-    <?php echo esc_html(__('Stop Mobipaid subscription', 'wc-skrill')); ?>
+    <?php echo esc_html(__('Stop Mobipaid subscription', 'mobipaid')); ?>
         </a>
     </p>
 <?php }?>
