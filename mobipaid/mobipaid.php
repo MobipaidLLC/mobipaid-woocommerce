@@ -5,11 +5,11 @@
  * Plugin URI:           https://github.com/MobipaidLLC/mobipaid-woocommerce
  * Description:          Receive payments using Mobipaid.
  * Version:              1.1.3
- * Requires at least:    5.0
+ * Requires at least:    6.2
  * Tested up to:         7.0
- * WC requires at least: 3.9.0
+ * WC requires at least: 7.1.0
  * WC tested up to:      10.3.5
- * Requires PHP:         7.0
+ * Requires PHP:         8.0
  * Author:               Mobipaid
  * Author URI:           https://mobipaid.com
  * License:              GPL v3 or later
