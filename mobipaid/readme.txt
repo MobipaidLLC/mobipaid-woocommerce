@@ -5,7 +5,7 @@ Tags: credit card, mobipaid, google pay, apple pay, nedbank
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 8.0
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -152,3 +152,10 @@ You can contact developer with this [link](https://mobipaid.com/contact/).
 * update compatibility with wordpress 7.0
 * remove outdated passing variables by reference for best practice
 * clean up code artifacts for Mobipaid
+
+= 1.1.4 - 2026-10-21 =
+* fix fatal error on non-existent or invalid orders during webhook processing
+* enhance webhook validation with timing-safe token comparison and idempotency checks
+* improve error handling and WP_Error normalization in API requests
+* modernize WooCommerce order getters for full HPOS compatibility
+* standardize method documentation and inline PHPDoc comments
