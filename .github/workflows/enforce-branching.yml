@@ -1,0 +1,76 @@
+name: Enforce Branching Guidelines
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-branch-rules:
+    name: Validate PR Source & Target Branches
+    runs-on: ubuntu-latest
+    steps:
+      # Enforces strict Git branching hierarchy: develop-<version> ➔ v<version> ➔ master
+      - name: Check Branching Rules
+        shell: bash
+        run: |
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
+
+          echo "Source Branch: $SOURCE_BRANCH"
+          echo "Target Branch: $TARGET_BRANCH"
+
+          # Helper function to print error and exit
+          fail() {
+            echo "::error::❌ $1"
+            echo "Please check .github/CONTRIBUTING.md for the correct Git branching workflow (develop-<version> ➔ v<version> ➔ master)."
+            exit 1
+          }
+
+          # Rule 1: Task branches MUST target a develop-<version> branch
+          if [[ "$SOURCE_BRANCH" =~ ^(feature|bugfix|fix|hotfix|chore|refactor|test|docs)/ ]]; then
+            if [[ ! "$TARGET_BRANCH" =~ ^develop- ]]; then
+              fail "Task branch '$SOURCE_BRANCH' cannot target '$TARGET_BRANCH'. Task branches MUST target a 'develop-<version>' branch (e.g., develop-1.1.4)."
+            fi
+          fi
+
+          # Rule 2: develop-<version> branches CAN ONLY target their corresponding v<version> release branch
+          if [[ "$SOURCE_BRANCH" =~ ^develop- ]]; then
+            DEV_VERSION="${SOURCE_BRANCH#develop-}"
+            DEV_VERSION="${DEV_VERSION#v}"
+            EXPECTED_TARGET="v${DEV_VERSION}"
+
+            if [[ ! "$TARGET_BRANCH" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+              fail "Development branch '$SOURCE_BRANCH' cannot target '$TARGET_BRANCH'. It CAN ONLY target its corresponding release branch '$EXPECTED_TARGET'."
+            fi
+
+            if [[ "$TARGET_BRANCH" != "$EXPECTED_TARGET" ]]; then
+              fail "Version mismatch: Source branch '$SOURCE_BRANCH' is attempting to merge into '$TARGET_BRANCH', but expected target is '$EXPECTED_TARGET'."
+            fi
+          fi
+
+          # Rule 3: Release branches v<version> CAN ONLY target master
+          if [[ "$SOURCE_BRANCH" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+            if [[ "$TARGET_BRANCH" != "master" ]]; then
+              fail "Release branch '$SOURCE_BRANCH' can only target 'master', NOT '$TARGET_BRANCH'."
+            fi
+          fi
+
+          # Rule 4: Protection for master branch - ONLY v<version> release branches can target master
+          if [[ "$TARGET_BRANCH" == "master" ]]; then
+            if [[ ! "$SOURCE_BRANCH" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+              fail "Direct PR from '$SOURCE_BRANCH' into 'master' is NOT allowed. Only release branches 'v<version>' (e.g., v1.1.4) can be merged into 'master'."
+            fi
+          fi
+
+          # Rule 5: Protection for v<version> release branches - ONLY develop-<version> can target v<version>
+          if [[ "$TARGET_BRANCH" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+            if [[ ! "$SOURCE_BRANCH" =~ ^develop- ]]; then
+              fail "Direct PR from '$SOURCE_BRANCH' into release branch '$TARGET_BRANCH' is NOT allowed. Only 'develop-<version>' branches can target release branches."
+            fi
+          fi
+
+          echo "✅ Branching rules passed! Valid PR from $SOURCE_BRANCH to $TARGET_BRANCH."
