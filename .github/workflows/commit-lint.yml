@@ -1,0 +1,39 @@
+name: Commit Lint
+
+on:
+ pull_request:
+  types: [opened, synchronize, reopened]
+  branches:
+   - develop-*
+   - master
+
+permissions:
+ contents: read
+ pull-requests: read
+
+env:
+ FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+ group: commitlint-${{ github.workflow }}-${{ github.ref }}
+ cancel-in-progress: true
+
+jobs:
+ commitlint:
+  name: Validate Commit Messages
+  runs-on: ubuntu-latest
+
+  steps:
+   # Full history required so commitlint can walk the commit range
+   - name: Checkout repository
+     uses: actions/checkout@v4
+     with:
+      fetch-depth: 0
+
+   # Ensures all commit messages follow Conventional Commits standard to keep git history clean.
+   - name: Validate commit messages
+     uses: wagoid/commitlint-github-action@v6
+     with:
+      configFile: commitlint.config.mjs
+      failOnWarnings: false
+      helpURL: https://www.conventionalcommits.org

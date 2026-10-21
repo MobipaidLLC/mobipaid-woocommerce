@@ -55,3 +55,10 @@
 * update compatibility with wordpress 7.0
 * remove outdated passing variables by reference for best practice
 * clean up code artifacts for Mobipaid
+
+= 1.1.4 - 2026-10-21 =
+* fix fatal error on non-existent or invalid orders during webhook processing
+* enhance webhook validation with timing-safe token comparison and idempotency checks
+* improve error handling and WP_Error normalization in API requests
+* modernize WooCommerce order getters for full HPOS compatibility
+* standardize method documentation and inline PHPDoc comments

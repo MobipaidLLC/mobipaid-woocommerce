@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Mobipaid API Class
  *
@@ -51,30 +52,27 @@ class Mobipaid_API
  public static $api_test_url = 'https://test.mobipaid.io/v2';
 
  /**
-  * Get API URL based on test mode setting
+  * Get API URL based on test mode setting.
   *
-  * @since 1.0.0
-  *
-  * @return string API URL
+  * @return string API URL.
   */
  public static function get_api_url()
  {
   if (self::$is_test_mode) {
    return self::$api_test_url;
   }
+
   return self::$api_live_url;
  }
 
  /**
-  * Send request to the Mobipaid API
-  *
-  * @since 1.0.0
+  * Send HTTP request to the Mobipaid API.
   *
   * @param string $url    API endpoint URL.
-  * @param mixed  $body   Request body.
+  * @param mixed  $body   Request body data.
   * @param string $method HTTP method (GET, POST, PUT, DELETE).
   *
-  * @return array API response
+  * @return array API response array.
   */
  public static function send_request($url, $body = '', $method = 'GET')
  {
@@ -83,12 +81,20 @@ class Mobipaid_API
    $api_args['headers']['Content-Type'] = 'Application/json';
    $body                                = wp_json_encode($body);
   }
+
   $api_args['method']  = strtoupper($method);
   $api_args['body']    = $body;
   $api_args['timeout'] = 70;
 
   $results = wp_remote_request($url, $api_args);
-  if (is_string($results['body'])) {
+  if (is_wp_error($results)) {
+   return array(
+    'body'     => array('message' => $results->get_error_message()),
+    'response' => array('code' => 0),
+   );
+  }
+
+  if (isset($results['body']) && is_string($results['body'])) {
    $results['body'] = json_decode($results['body'], true);
   }
 
@@ -96,11 +102,11 @@ class Mobipaid_API
  }
 
  /**
-  * Get pos link url with the API.
+  * Generate POS link URL via the API.
   *
-  * @param array $body Body.
+  * @param array $body Request body data.
   *
-  * @return array
+  * @return array API response array.
   */
  public static function generate_pos_link($body)
  {
@@ -108,48 +114,44 @@ class Mobipaid_API
   return self::send_request($url, $body, 'POST');
  }
 
-  /**
-  * Get pos link detail with the API.
+ /**
+  * Get POS link details via the API.
   *
-  * @param string $payment_id Payment ID.
-  *
-  * @return array
+  * @return array API response array.
   */
-  public static function get_pos_link()
-  {
-   $url = self::get_api_url() . '/pos';
-   return self::send_request($url);
-  }
-
-  /**
-  * Create default pos link
-  *
-  * @param array $currency Currency.
-  *
-  * @return array
-  */
-  public static function create_default_pos_link(){
-    $body = array();
-
-    $body['currency'] = ['ZAR', 'USD', 'EUR'];
-    $body['auto_generate_ref_number'] = 0;
-    $body['ref_number_suffix'] = 1;
-    $body['ref_number_prefix'] = 'MP';
-    $body['tip_enabled'] = false;
-    $body['moto_enabled'] = false;
-    $body['share_button_enabled'] = false;
-
-    $url = self::get_api_url() . '/pos';
-
-    return self::send_request($url, $body, 'POST');
-  }
+ public static function get_pos_link()
+ {
+  $url = self::get_api_url() . '/pos';
+  return self::send_request($url);
+ }
 
  /**
-  * Get payment detail with the API.
+  * Create default POS link via the API.
+  *
+  * @return array API response array.
+  */
+ public static function create_default_pos_link()
+ {
+  $body = array();
+
+  $body['currency'] = ['ZAR', 'USD', 'EUR'];
+  $body['auto_generate_ref_number'] = 0;
+  $body['ref_number_suffix'] = 1;
+  $body['ref_number_prefix'] = 'MP';
+  $body['tip_enabled'] = false;
+  $body['moto_enabled'] = false;
+  $body['share_button_enabled'] = false;
+
+  $url = self::get_api_url() . '/pos';
+  return self::send_request($url, $body, 'POST');
+ }
+
+ /**
+  * Get payment details by payment ID via the API.
   *
   * @param string $payment_id Payment ID.
   *
-  * @return array
+  * @return array API response array.
   */
  public static function get_payment($payment_id)
  {
@@ -158,11 +160,11 @@ class Mobipaid_API
  }
 
  /**
-  * create payment request for subcribtion.
+  * Create payment request for subscription via the API.
   *
-  * @param string $payment_id Payment ID.
+  * @param array $body Request body data.
   *
-  * @return array
+  * @return array API response array.
   */
  public static function create_payment_request($body)
  {
@@ -171,30 +173,29 @@ class Mobipaid_API
  }
 
  /**
-  * create payment request for subcribtion.
+  * Cancel subscription by payment ID via the API.
   *
   * @param string $payment_id Payment ID.
   *
-  * @return array
+  * @return array API response array.
   */
  public static function cancel_subscription($payment_id)
  {
   $url = self::get_api_url() . '/payments/subscription/' . $payment_id;
-  return self::send_request($url,'','DELETE');
+  return self::send_request($url, '', 'DELETE');
  }
 
  /**
-  * Do refund with the API.
+  * Process refund by payment ID via the API.
   *
   * @param string $payment_id Payment ID.
-  * @param array  $body Body.
+  * @param array  $body       Refund request body data.
   *
-  * @return array
+  * @return array API response array.
   */
  public static function do_refund($payment_id, $body)
  {
   $url = self::get_api_url() . '/refunds/' . $payment_id;
   return self::send_request($url, $body, 'POST');
  }
-
 }
