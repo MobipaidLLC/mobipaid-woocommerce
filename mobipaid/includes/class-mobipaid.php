@@ -3,6 +3,8 @@
 /**
  * Mobipaid Class
  *
+ * Handles Mobipaid payment gateway with WooCommerce plugin.
+ *
  * @package Mobipaid
  */
 
@@ -15,7 +17,9 @@ require_once dirname(__FILE__) . '/class-mobipaid-api.php';
 /**
  * Mobipaid class.
  *
- * @extends WC_Payment_Gateway
+ * Handles Mobipaid payment process, refund and other API requests.
+ *
+ * @since 1.0.0
  */
 class Mobipaid extends WC_Payment_Gateway
 {
@@ -84,15 +88,16 @@ class Mobipaid extends WC_Payment_Gateway
  protected $wc_order;
 
  /**
-  * Constructor
-  *
+  * Initialize Mobipaid payment gateway class and hooks.
   */
  public function __construct()
  {
   $this->id = 'mobipaid';
+
   // Title for backend.
   $this->method_title       = __('Mobipaid', 'mobipaid');
   $this->method_description = __('Mobipaid redirects customers to Mobipaid to enter their payment information.', 'mobipaid');
+
   // Title and icon for frontend.
   $this->icon     = plugins_url('assets/img/mp-logo.png', dirname(__FILE__));
   $this->supports = array(
@@ -108,13 +113,16 @@ class Mobipaid extends WC_Payment_Gateway
 
   // save woocomerce settings checkout tab section mobipaid.
   add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+
   // validate form fields when saved.
   add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'validate_admin_options'));
 
   // use hook to do full refund.
   add_action('woocommerce_order_edit_status', array($this, 'process_full_refund'), 10, 2);
+
   // use hook to add notes when payment amount greater than order amount.
   add_action('woocommerce_order_status_changed', array($this, 'add_full_refund_notes'), 10, 3);
+
   // use hook to add button for stop recurring
   add_action('woocommerce_admin_order_data_after_order_details', array($this, 'stop_recurring_backend'));
   add_action('woocommerce_view_order', array($this, 'stop_recurring_frontend'));
@@ -129,9 +137,7 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Override function.
-  * Initialise settings form fields for mobipaid
-  * Add an array of fields to be displayed on the mobipaid settings screen.
+  * Initialise settings form fields for the Mobipaid payment gateway.
   */
  public function init_form_fields()
  {
@@ -178,8 +184,7 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Show error notice if access key is empty.
-  *
+  * Validate admin settings form fields and check POS link configuration.
   */
  public function validate_admin_options()
  {
@@ -195,11 +200,10 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Check if pos link is already created
-  * if not exist, create new default pos link
+  * Validate POS link existence or create default POS link.
   *
-  * @param string $access_key
-  * @param bool   $is_test_mode
+  * @param string $access_key  Mobipaid access key.
+  * @param bool   $is_test_mode Test mode flag.
   */
  public function validate_pos_link($access_key, $is_test_mode)
  {
@@ -230,10 +234,9 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Override function.
-  * Disable if access key is empty.
+  * Check whether the Mobipaid gateway is available for checkout.
   *
-  * @return bool
+  * @return bool True if available, false otherwise.
   */
  public function is_available()
  {
@@ -246,15 +249,12 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Get order property with compatibility check on order getter introduced
-  * in WC 3.0.
-  *
-  * @since 1.0.0
+  * Get order property with backward compatibility for order getter methods.
   *
   * @param WC_Order $order Order object.
   * @param string   $prop  Property name.
   *
-  * @return mixed Property value
+  * @return mixed Property value.
   */
  public static function get_order_prop($order, $prop)
  {
@@ -271,12 +271,10 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Log system processes.
-  *
-  * @since 1.0.0
+  * Log messages to WooCommerce logger if logging is enabled.
   *
   * @param string $message Log message.
-  * @param string $level Log level.
+  * @param string $level   Log level.
   */
  public function log($message, $level = 'info')
  {
@@ -284,12 +282,13 @@ class Mobipaid extends WC_Payment_Gateway
    if (empty($this->logger)) {
     $this->logger = new WC_Logger();
    }
+
    $this->logger->add('mobipaid-' . $level, $message);
   }
  }
 
  /**
-  * Init the API class and set the access key.
+  * Initialize the API class configuration with access key and test mode.
   */
  protected function init_api()
  {
@@ -298,20 +297,24 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Get payment url.
+  * Generate Mobipaid hosted payment checkout URL.
   *
-  * @param int    $order_id Order ID.
-  * @param string $transaction_id Transaction ID.
+  * @param int|string $order_id       Order ID.
+  * @param string     $transaction_id Transaction ID.
   *
-  * @return string
-  * @throws \Exception Error.
+  * @return string Payment checkout URL.
+  * @throws Exception If order not found or request processing fails.
   */
  protected function get_payment_url($order_id, $transaction_id)
  {
-  $order        = wc_get_order($order_id);
+  $order = wc_get_order($order_id);
+  if (!$order) {
+   throw new Exception(__('Error while Processing Request: please try again.', 'mobipaid'), 1);
+  }
+
   $currency     = $order->get_currency();
   $amount       = $this->get_order_prop($order, 'order_total');
-  $token        = $this->generate_token($order_id, $currency);
+  $token        = $this->generate_token($order, $currency);
   $response_url = $this->get_mobipaid_response_url($order_id);
   $return_url   = $this->get_return_url($order);
 
@@ -324,9 +327,9 @@ class Mobipaid extends WC_Payment_Gateway
 
   if ($this->is_subscription($order_id)) {
    $this->log('this is subcription product');
-
    $merge_paramters = array_merge($body, $this->get_mobipaid_subscription_parameter($order));
    unset($body);
+
    $body                     = array();
    $body                     = $merge_paramters;
    $log_body                 = $body;
@@ -363,11 +366,11 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Get mobipaid response url.
+  * Get the Mobipaid webhook callback response URL for an order.
   *
-  * @param int $order_id Order ID.
+  * @param int|string $order_id Order ID.
   *
-  * @return string
+  * @return string Webhook callback response URL.
   */
  protected function get_mobipaid_response_url($order_id)
  {
@@ -377,18 +380,18 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Get checkout parameters for order that contain subscription product
+  * Get Mobipaid checkout parameters for subscription orders.
   *
-  * @param  string $property property of class WC_Orde.
-  * @return array
+  * @param WC_Order $order Subscription order object.
+  *
+  * @return array Subscription checkout parameters.
+  * @throws Exception If subscription interval is unsupported.
   */
  protected function get_mobipaid_subscription_parameter($order)
  {
-
   $subscription_period                      = WC_Subscriptions_Order::get_subscription_period($order);
   $checkout_parameters                      = array();
   $checkout_parameters['payment_frequency'] = WC_Subscriptions_Order::get_subscription_period($order);
-
   $date_now = date('m/d/Y');
 
   if ($subscription_period == 'day') {
@@ -407,7 +410,7 @@ class Mobipaid extends WC_Payment_Gateway
   }
 
   $checkout_parameters['initial_payment_amount'] = (float) $this->get_order_prop($order, 'order_total');
-  $unconvert_date                                = WC_Subscriptions_Manager::get_subscription_expiration_date(WC_Subscriptions_Manager::get_subscription_key($order->id), $order->customer_user);
+  $unconvert_date                                = WC_Subscriptions_Manager::get_subscription_expiration_date(WC_Subscriptions_Manager::get_subscription_key($order->get_id()), $order->get_customer_id());
 
   if (0 !== $unconvert_date) {
    if ($subscription_period == 'week') {
@@ -424,19 +427,23 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Get cart items.
+  * Get formatted cart line items for POS link generation.
   *
-  * @param int $order_id Order ID.
-  * @return array
+  * @param int|string $order_id Order ID.
+  *
+  * @return array List of cart items.
   */
  public function get_cart_items($order_id)
  {
   $cart_items = array();
   $order      = wc_get_order($order_id);
+  if (!$order) {
+   return $cart_items;
+  }
 
   foreach ($order->get_items() as $item_id => $item) {
-   $product = $item->get_product();
-   $sku     = $product->get_sku();
+   $product = is_callable(array($item, 'get_product')) ? $item->get_product() : false;
+   $sku     = $product ? $product->get_sku() : '';
 
    if (!$sku || empty($sku)) $sku = '-';
    $item_total = isset($item['recurring_line_total']) ? $item['recurring_line_total'] : $order->get_item_total($item);
@@ -453,23 +460,22 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Override function.
+  * Process WooCommerce checkout payment and return redirect URL.
   *
-  * Send data to the API to get the payment url.
-  * Redirect user to the payment url.
-  * This should return the success and redirect in an array. e.g:
+  * @param int|string $order_id Order ID.
   *
-  *        return array(
-  *            'result'   => 'success',
-  *            'redirect' => $this->get_return_url( $order )
-  *        );
-  *
-  * @param int $order_id Order ID.
-  * @return array
+  * @return array Payment result status and redirect URL.
   */
  public function process_payment($order_id)
  {
-  $order          = wc_get_order($order_id);
+  $order = wc_get_order($order_id);
+  if (!$order) {
+   wc_add_notice(__('Error while Processing Request: please try again.', 'mobipaid'), 'error');
+   return array(
+    'result' => 'failure',
+   );
+  }
+
   $transaction_id = 'wc-' . $order->get_order_number();
   $secret_key     = wc_rand_hash();
 
@@ -477,7 +483,6 @@ class Mobipaid extends WC_Payment_Gateway
   $order->update_meta_data('_mobipaid_transaction_id', $transaction_id);
   $order->update_meta_data('_mobipaid_secret_key', $secret_key);
   if (method_exists($order, 'save')) $order->save();
-
   $payment_url = $this->get_payment_url($order_id, $transaction_id);
 
   return array(
@@ -487,15 +492,13 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Process partial refund.
+  * Process partial refund through the Mobipaid gateway.
   *
-  * If the gateway declares 'refunds' support, this will allow it to refund.
-  * a passed in amount.
+  * @param int|string  $order_id Order ID.
+  * @param float|null  $amount   Refund amount.
+  * @param string      $reason   Refund reason.
   *
-  * @param  int    $order_id Order ID.
-  * @param  float  $amount Refund amount.
-  * @param  string $reason Refund reason.
-  * @return boolean True or false based on success, or a WP_Error object.
+  * @return bool|WP_Error True on success, or WP_Error on failure.
   */
  public function process_refund($order_id, $amount = null, $reason = '')
  {
@@ -506,6 +509,7 @@ class Mobipaid extends WC_Payment_Gateway
     'email'  => $order->get_billing_email(),
     'amount' => (float) $amount,
    );
+
    $this->log('process_refund - request body ' . wp_json_encode($body));
    $results = Mobipaid_API::do_refund($payment_id, $body);
    $this->log('process_refund - results: ' . wp_json_encode($results));
@@ -522,10 +526,10 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Process full refund when order status change from processing / completed to refunded.
+  * Process full refund when order status changes to refunded.
   *
-  * @param int    $order_id Order ID.
-  * @param string $status_to change status to.
+  * @param int|string $order_id  Order ID.
+  * @param string     $status_to Target order status.
   */
  public function process_full_refund($order_id, $status_to)
  {
@@ -540,6 +544,7 @@ class Mobipaid extends WC_Payment_Gateway
      'email'  => $order->get_billing_email(),
      'amount' => $amount,
     );
+
     $this->log('process_full_refund - request body ' . wp_json_encode($body));
     $results = Mobipaid_API::do_refund($payment_id, $body);
     $this->log('process_full_refund - do_refund results: ' . wp_json_encode($results));
@@ -550,6 +555,7 @@ class Mobipaid extends WC_Payment_Gateway
      $this->log('process_full_refund: Success');
     } else {
      $this->log('process_full_refund: Failed');
+
      $redirect = get_admin_url() . 'post.php?post=' . $order_id . '&action=edit';
      WC_Admin_Meta_Boxes::add_error(__('Refund Failed', 'mobipaid') . ':' . $results['body']['message']);
      wp_safe_redirect($redirect);
@@ -560,23 +566,26 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Add notes if payment amount greater than order amount when order status change from processing / completed to refunded.
+  * Add order notes if refunded payment amount exceeds order total.
   *
-  * @param int    $order_id Order ID.
-  * @param string $status_from change status from.
-  * @param string $status_to change status to.
+  * @param int|string $order_id    Order ID.
+  * @param string     $status_from Previous order status.
+  * @param string     $status_to   Target order status.
   */
  public function add_full_refund_notes($order_id, $status_from, $status_to)
  {
   $order = wc_get_order($order_id);
+
   if ($order && 'mobipaid' === $order->get_payment_method()) {
    if (('processing' === $status_from || 'completed' === $status_from) && 'refunded' === $status_to) {
     $order_amount = (float) $this->get_order_prop($order, 'order_total');
     $payment_id   = $order->get_meta('_mobipaid_payment_id', true);
     $results      = Mobipaid_API::get_payment($payment_id);
+
     $this->log('add_full_refund_notes - get_payment results: ' . wp_json_encode($results));
     if (200 === $results['response']['code']) {
      $payment_amount = (float) $results['body']['payment']['amount'];
+
      if ($payment_amount > $order_amount) {
       $order->add_order_note(__('Mobipaid notes: You still have amount to be refunded, because Merchant use tax/tip when customer paid. Please contact the merchant to refund the tax/tip amount.'));
      }
@@ -586,9 +595,9 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Increase stock for refunded items.
+  * Restock product inventory for refunded order items.
   *
-  * @param WC_Order $order Order.
+  * @param WC_Order $order Order object.
   */
  public function restock_refunded_items($order)
  {
@@ -598,32 +607,43 @@ class Mobipaid extends WC_Payment_Gateway
   foreach ($line_items as $item_id => $item) {
    $refunded_line_items[$item_id]['qty'] = $item->get_quantity();
   }
+
   wc_restock_refunded_items($order, $refunded_line_items);
  }
 
  /**
-  * Use this generated token to secure get payment status.
-  * Before call this function make sure _mobipaid_transaction_id and _mobipaid_secret_key already saved.
+  * Generate secure MD5 token for payment verification and callback validation.
   *
-  * @param int    $order_id - Order Id.
-  * @param string $currency - Currency.
+  * @param int|string|WC_Order $order_id Order ID or WC_Order instance.
+  * @param string              $currency Transaction currency code.
   *
-  * @return string
+  * @return string Generated verification token.
   */
  protected function generate_token($order_id, $currency)
  {
-  $order          = wc_get_order($order_id);
-  $transaction_id = $order->get_meta('_mobipaid_transaction_id', true);
-  $secret_key     = $order->get_meta('_mobipaid_secret_key', true);
+  $order = ($order_id instanceof WC_Order) ? $order_id : wc_get_order($order_id);
 
-  return md5((string) $order_id . $currency . $transaction_id . $secret_key);
+  if (!$order) {
+   $this->log('generate_token: order not found for order_id: ' . wp_json_encode($order_id));
+   return '';
+  }
+
+  $resolved_order_id = ($order_id instanceof WC_Order) ? $order->get_id() : $order_id;
+  $transaction_id    = $order->get_meta('_mobipaid_transaction_id', true);
+  $secret_key        = $order->get_meta('_mobipaid_secret_key', true);
+
+  if (empty($transaction_id) || empty($secret_key)) {
+   $this->log('generate_token: missing transaction_id or secret_key for order_id: ' . $resolved_order_id);
+   return '';
+  }
+
+  return md5((string) $resolved_order_id . $currency . $transaction_id . $secret_key);
  }
 
  /**
-  * Page to handle response from the gateway.
-  * Get payment status and update order status.
+  * Handle webhook callback response from the gateway and update order status.
   *
-  * @param WP_REST_Request $request
+  * @param WP_REST_Request|null $request REST request object.
   */
  public function response_page($request = null)
  {
@@ -632,13 +652,39 @@ class Mobipaid extends WC_Payment_Gateway
 
   if (!empty($token)) {
    $request_body = [];
+
    $this->log('get response from the gateway reponse url');
-   if (method_exists($request, 'get_body')) $request_body = json_decode($request->get_body(), true);
-   $response = $this->get_request_value('response') ?? file_get_contents('php://input');
-   if (!empty($request_body['response'])) $response = $request_body['response'];
+   if (is_object($request) && method_exists($request, 'get_body')) {
+    $request_body = json_decode($request->get_body(), true);
+   }
+
+   $raw_response = $this->get_request_value('response');
+   $response     = (false !== $raw_response) ? $raw_response : file_get_contents('php://input');
+   if (!empty($request_body['response'])) {
+    $response = $request_body['response'];
+   }
+
    $this->log('response_page - original response: ' . wp_json_encode($response));
-   $response = json_decode($response, true);
+   if (is_string($response)) {
+    $response = json_decode($response, true);
+   }
+
    $this->log('response_page - formated response: ' . wp_json_encode($response));
+   if (!is_array($response)) {
+    $this->log('response_page: invalid response payload');
+    die('OK');
+   }
+
+   $order = wc_get_order($order_id);
+   if (!$order) {
+    $this->log('response_page: order not found for order_id: ' . $order_id);
+    die('OK');
+   }
+
+   if ('mobipaid' !== $order->get_payment_method()) {
+    $this->log('response_page: payment method is not mobipaid for order_id: ' . $order_id);
+    die('OK');
+   }
 
    $payment_status = '';
    $payment_id     = '';
@@ -669,96 +715,118 @@ class Mobipaid extends WC_Payment_Gateway
     $amount = (float) $response['response']['amount'];
    }
 
-   $generated_token = $this->generate_token($order_id, $currency);
-   $order           = wc_get_order($order_id);
-   $order->set_transaction_id($payment_id);
+   $generated_token = $this->generate_token($order, $currency);
+   $is_valid_token  = !empty($generated_token) && hash_equals($generated_token, (string) $token);
 
-   if ($order && 'mobipaid' === $order->get_payment_method()) {
+   if (isset($response['transaction_type'])) {
+    if ($response['transaction_type'] == "scheduled" && 'ACK' === $payment_status && $is_valid_token) {
+     $subscription = null;
 
-    if (isset($response['transaction_type'])) {
-     if ($response['transaction_type'] == "scheduled" && 'ACK' === $payment_status && $token === $generated_token) {
+     if (function_exists('wcs_get_subscriptions_for_order')) {
       foreach (wcs_get_subscriptions_for_order($order_id) as $subscriptions) {
        $subscription = $subscriptions;
       }
-      if ($subscription->has_status('active')) {
-       $this->process_subcription_renewal_order($response, $subscription, $order);
-      }
      }
-     $this->log('failed create renewal order');
-     die("failed create order");
-    }
 
-    if ($currency !== $order->get_currency()) {
-     $this->log('response_page: FRAUD detected, currency is not match');
-     die("OK");
-    }
-
-    if ($amount != $order->get_total()) {
-     $this->log('response_page: FRAUD detected, amount is not match');
-     die("OK");
-    }
-
-    if ($token === $generated_token) {
-     if ('ACK' === $payment_status) {
-      $this->log('response_page: update order status to processing');
-      $order_status = 'completed';
-
-      if (count((array)$order->get_items()) > 1) {
-       if ($this->is_product_contain_physical($order)) {
-        $order_status = 'processing';
-       }
-      }
-
-      $this->log('order_status: ' . $order_status);
-      $order_notes  = 'Mobipaid payment successfull:';
-      $order->update_meta_data('_mobipaid_payment_id', $payment_id);
-      $order->update_meta_data('_mobipaid_payment_result', 'succes');
-      if (method_exists($order, 'save')) $order->save();
-      $order->update_status($order_status, $order_notes);
-     } else {
-      $this->log('response_page: update order status to failed');
-      $order_status = 'failed';
-      $order_notes  = 'Mobipaid payment failed:';
-      $order->update_meta_data('_mobipaid_payment_result', 'failed');
-      if (method_exists($order, 'save')) $order->save();
-      $order->update_status($order_status, $order_notes);
+     if ($subscription && $subscription->has_status('active')) {
+      $this->process_subcription_renewal_order($response, $subscription, $order);
      }
-     die('OK');
-    } else {
-     $this->log('response_page: FRAUD detected, token is not same with the generated token');
     }
+
+    $this->log('failed create renewal order');
+    die("failed create order");
    }
+
+   if (!$is_valid_token) {
+    $this->log('response_page: FRAUD detected, token is not same with the generated token');
+    die("OK");
+   }
+
+   if ($currency !== $order->get_currency()) {
+    $this->log('response_page: FRAUD detected, currency is not match');
+    die("OK");
+   }
+
+   if ($amount != $order->get_total()) {
+    $this->log('response_page: FRAUD detected, amount is not match');
+    die("OK");
+   }
+
+   $order->set_transaction_id($payment_id);
+   if ('ACK' === $payment_status) {
+    if ($order->has_status(array('processing', 'completed')) && $payment_id === $order->get_meta('_mobipaid_payment_id', true)) {
+     $this->log('response_page: order already processed for order_id: ' . $order_id);
+     die('OK');
+    }
+
+    $this->log('response_page: update order status to processing');
+    $order_status = 'completed';
+
+    if (count((array)$order->get_items()) > 1) {
+     if ($this->is_product_contain_physical($order)) {
+      $this->log('response_page: product contain physical');
+      $order_status = 'processing';
+     }
+    }
+
+    $this->log('order_status: ' . $order_status);
+    $order_notes  = 'Mobipaid payment successfull:';
+    $order->update_meta_data('_mobipaid_payment_id', $payment_id);
+    $order->update_meta_data('_mobipaid_payment_result', 'succes');
+
+    if (method_exists($order, 'save')) $order->save();
+    $order->update_status($order_status, $order_notes);
+   } else {
+    $this->log('response_page: update order status to failed');
+
+    $order_status = 'failed';
+    $order_notes  = 'Mobipaid payment failed:';
+    $order->update_meta_data('_mobipaid_payment_result', 'failed');
+
+    if (method_exists($order, 'save')) $order->save();
+    $order->update_status($order_status, $order_notes);
+   }
+
+   die('OK');
   } else {
    $this->log('response_page: go to thank you page');
   }
  }
 
  /**
-  * Check if the given product is a gift card
+  * Check whether the given product is a gift card.
   *
-  * @param WC_Product $product The product to check
-  * @return bool True if the product is a gift card, false otherwise
+  * @param WC_Product|false $product Product instance to check.
+  *
+  * @return bool True if product is a gift card, false otherwise.
   */
  public function is_gift_card($product)
  {
-  return str_contains($product->get_type(), 'gift') && str_contains($product->get_type(), 'card');
+  if (!$product || !is_callable(array($product, 'get_type'))) {
+   return false;
+  }
+  return str_contains((string) $product->get_type(), 'gift') && str_contains((string) $product->get_type(), 'card');
  }
 
  /**
-  * Check if the order contains any physical products.
+  * Check whether the order contains any physical shippable products.
   *
-  * This function iterates through the items in the order and checks
-  * if there are any products that are not virtual and not gift cards.
+  * @param WC_Order|false $order Order object to inspect.
   *
-  * @param WC_Order $order The order to check for physical products.
-  * @return bool True if the order contains at least one physical product, false otherwise.
+  * @return bool True if order contains physical products, false otherwise.
   */
  public function is_product_contain_physical($order)
  {
-  foreach ($order->get_items() as $order_item) {
-   $item = wc_get_product($order_item->get_product_id());
+  if (!$order) {
+   return false;
+  }
 
-   if (!$item->is_virtual() && !$this->is_gift_card($item)) {
+  foreach ($order->get_items() as $order_item) {
+   $item = is_callable(array($order_item, 'get_product'))
+    ? $order_item->get_product()
+    : wc_get_product($order_item->get_product_id());
+
+   if ($item && !$item->is_virtual() && !$this->is_gift_card($item)) {
     return true;
    }
   }
@@ -767,18 +835,20 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * crete renewal order using response from status_url
+  * Create subscription renewal order from scheduled payment response.
   *
-  * @param  array $payment_response.
-  * @param  string $subscription property of class WC_Subscription.
-  * @return array
+  * @param array           $payment_response Gateway payment response data.
+  * @param WC_Subscription $subscription     Subscription object.
+  * @param WC_Order        $order            Original parent order object.
   */
  protected function process_subcription_renewal_order($payment_response, $subscription, $order)
  {
   $this->log('process renewal order');
-  // // Generate a renewal order to record the failed payment
+
+  // Generate a renewal order to record the failed payment
   $transaction_order  = wcs_create_renewal_order($subscription);
   $available_gateways = WC()->payment_gateways->get_available_payment_gateways();
+
   $note               = __($order->get_payment_method() . " payment approved (Recurring payment ID:" . $payment_response['payment_id']);
   $transaction_order->add_order_note($note);
   $transaction_order->set_payment_method($order->get_payment_method());
@@ -789,13 +859,11 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * Checks whether order is part of subscription.
+  * Check whether an order contains or is part of a subscription.
   *
-  * @since 1.2.0
+  * @param int|string $order_id Order ID.
   *
-  * @param int $order_id Order ID
-  *
-  * @return bool Returns true if order is part of subscription
+  * @return bool True if order is part of a subscription, false otherwise.
   */
  public function is_subscription($order_id)
  {
@@ -803,19 +871,29 @@ class Mobipaid extends WC_Payment_Gateway
  }
 
  /**
-  * [BACKEND] cancel recurring for backend
-  * render update order button and process update order from gateway
-  * from hook "woocommerce_admin_order_data_after_order_details"
+  * Render recurring cancellation button and process cancellation in admin order view.
+  *
+  * @param WC_Order|null $order Order object passed from action hook.
   */
- public function stop_recurring_backend()
+ public function stop_recurring_backend($order = null)
  {
   $post_type = $this->get_request_value('post_type');
-
   if (!self::$updated_meta_boxes && 'shop_order' !== $post_type) {
    $order_id = $this->get_request_value('post');
 
-   $this->wc_order = wc_get_order($order_id);
-   $order_status   = $this->wc_order->get_status();
+   if (!$order_id) {
+    $order_id = $this->get_request_value('id');
+   }
+   if (!$order_id && $order instanceof WC_Order) {
+    $order_id = $order->get_id();
+   }
+
+   $this->wc_order = ($order instanceof WC_Order) ? $order : wc_get_order($order_id);
+   if (!$this->wc_order) {
+    return;
+   }
+
+   $order_status = $this->wc_order->get_status();
    if ('mobipaid' === $this->wc_order->get_payment_method() && $this->is_subscription($order_id) && $order_status === "processing") {
     $is_show_warning_message = true;
     $is_show_update_order    = false;
@@ -825,10 +903,11 @@ class Mobipaid extends WC_Payment_Gateway
      $is_show_update_order    = true;
      $is_show_warning_message = false;
      $request_section         = $this->get_request_value('section');
+
      if ($order_id && 'cancel-recurring' === $request_section) {
       $this->log('Start start cancel recurring');
       $redirect = get_admin_url() . 'post.php?post=' . $this->wc_order->get_order_number() . '&action=edit';
-      $this->process_cancel_recurring_order();
+
       if ($this->process_cancel_recurring_order()) {
        wp_safe_redirect($redirect);
        exit();
@@ -839,7 +918,6 @@ class Mobipaid extends WC_Payment_Gateway
      }
 
      $cancel_reccuring_url = get_admin_url() . 'post.php?post=' . $order_id . '&action=edit&section=cancel-recurring';
-
      $is_show_warning_message = false;
      $is_show_update_order    = true;
      $warning_message         = '';
@@ -856,43 +934,48 @@ class Mobipaid extends WC_Payment_Gateway
       'redirect_url'            => null
      ),
      $this->plugin_directory . '../templates/admin/order/',
-     $this->plugin_directory . '../templates/admin/order/'
+     $this->plugin_directory . '../templates/admin/order/',
     );
-   } // End if().
+   }
+
    self::$updated_meta_boxes = true;
-  } // End if().
- } // End if().
+  }
+ }
 
  /**
-  * [BACKEND] cancel recurring for frontend
-  * render update order button and process update order from gateway
-  * from hook "woocommerce_admin_order_data_after_order_details"
+  * Render recurring cancellation button and process cancellation in customer order view.
+  *
+  * @param int|string $order_id Order ID.
   */
  public function stop_recurring_frontend($order_id)
  {
   if (!self::$updated_meta_boxes) {
    $this->wc_order = wc_get_order($order_id);
+   if (!$this->wc_order) {
+    return;
+   }
+
    global $wp;
    $is_show_warning_message = true;
    $is_show_update_order    = false;
-   $redirect_url = null;
+   $redirect_url            = null;
    $warning_message         = 'subscription-cancelled';
-   if ('mobipaid' === $this->wc_order->get_payment_method() && $this->is_subscription($order_id)) {
 
+   if ('mobipaid' === $this->wc_order->get_payment_method() && $this->is_subscription($order_id)) {
     $order_status = $this->wc_order->get_status();
 
     if ($order_status === "processing" && $this->wc_order->get_created_via() !== "subscription-cancelled") {
      $request_section = $this->get_request_value('section');
+
      if ($order_id && 'cancel-recurring' === $request_section) {
       $this->log('Start cancel recurring');
       if ($this->process_cancel_recurring_order()) {
        $key = 'section';
-       $$redirect_url = preg_replace('~(\?|&)' . $key . '=[^&]*~', '$1', home_url($wp->request));
+       $redirect_url = preg_replace('~(\?|&)' . $key . '=[^&]*~', '$1', home_url($wp->request));
       }
      }
 
      $cancel_reccuring_url = home_url($wp->request) . '?section=cancel-recurring';
-
      $is_show_warning_message = false;
      $is_show_update_order    = true;
      $warning_message         = '';
@@ -909,23 +992,22 @@ class Mobipaid extends WC_Payment_Gateway
       'redirect_url'            => $redirect_url
      ),
      $this->plugin_directory . '../templates/admin/order/',
-     $this->plugin_directory . '../templates/admin/order/'
+     $this->plugin_directory . '../templates/admin/order/',
     );
-   } // End if().
+   }
+
    self::$updated_meta_boxes = true;
   }
- } // End if().
+ }
 
  /**
-  * [BACKEND] Process cancel recurring Order
+  * Process subscription cancellation request through the Mobipaid API.
   *
-  * @param array  $transaction  - transaction.
-  * @param string $order_status - order status.
+  * @return bool True if subscription was successfully cancelled, false otherwise.
   */
  protected function process_cancel_recurring_order()
  {
   $results = Mobipaid_API::cancel_subscription($this->wc_order->get_transaction_id());
-
   $this->log('cancel subscription - formated response: ' . wp_json_encode($results));
 
   if (200 === $results['response']['code'] && 'subscription_ended' === $results['body']['status']) {
@@ -937,15 +1019,17 @@ class Mobipaid extends WC_Payment_Gateway
 
    return true;
   }
+
   return false;
  }
 
  /**
-  * Get request value
+  * Retrieve and sanitize parameter value from request variables.
   *
-  * @param  string         $key     - key.
-  * @param  boolean|string $default - default.
-  * @return boolean|string
+  * @param string $key     Request parameter key.
+  * @param mixed  $default Default value if parameter is not set.
+  *
+  * @return mixed Sanitized parameter value or default.
   */
  public function get_request_value($key, $default = false)
  {
@@ -954,17 +1038,18 @@ class Mobipaid extends WC_Payment_Gateway
     return $default;
    }
   }
+
   if (isset($_REQUEST[$key])) { // input var okay.
    return sanitize_text_field(wp_unslash($_REQUEST[$key])); // input var okay.
   }
+
   return $default;
  }
 
  /**
-  * [BACKEND] Redirect Order Detail
-  * redirect to order detail and show error message if exist
+  * Redirect to admin order details page with optional error message.
   *
-  * @param boolean|string $error_message - error message.
+  * @param string|false $error_message Optional error message to display.
   */
  protected function redirect_order_detail($error_message = false)
  {
@@ -972,6 +1057,7 @@ class Mobipaid extends WC_Payment_Gateway
   if ($error_message) {
    WC_Admin_Meta_Boxes::add_error($error_message);
   }
+
   wp_safe_redirect($redirect);
   exit;
  }
